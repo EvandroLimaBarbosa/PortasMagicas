@@ -1,5 +1,3 @@
-# Monty-Hall
+# Portas Mágicas
 
-Monty Hall Problem Demonstration!
-
-https://codingtrain.github.io/Monty-Hall/
+Jogo aonde explora o conceito de portas lógicas usando algo mistico de outro universo
