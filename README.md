@@ -38,20 +38,6 @@ Um jogo educacional que transforma **portas lógicas** em **magias de outro univ
 - **CSS3** — tema místico com gradientes, animações e dark mode
 - **JavaScript** (vanilla) — lógica do jogo, sem dependências
 
-## 🚀 Como executar
-
-Como é um projeto 100% estático, basta abrir o `index.html` no navegador ou servir a pasta com qualquer servidor local:
-
-```bash
-# Python
-python -m http.server 8000
-
-# Node.js
-npx serve .
-```
-
-Depois acesse `http://localhost:8000`.
-
 ## 🏗️ Estrutura do projeto
 
 ```
