@@ -793,12 +793,14 @@ body::after {
   letter-spacing: 0.06em;
 }
 
-/* ---------- Rodapé do jogo ---------- */
+/* ---------- Botão de nova rodada ---------- */
 
-.bottom-bar {
+.magic-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: center;
-  margin-top: 1.6rem;
 }
 
 .btn-primary {
