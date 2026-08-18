@@ -20,6 +20,7 @@ Um jogo educacional que transforma **portas lógicas** em **magias de outro univ
 | `·` | AND | Magia da Conjunção | Ativa quando **A e B** estão ativos |
 | `+` | OR | Magia da Disjunção | Ativa quando **A ou B** (ou ambos) está ativo |
 | `⊕` | XOR | Magia do Exclusivo | Ativa quando **exatamente um** está ativo |
+| `⊙` | XNOR | Magia da Igualdade | Ativa quando **A e B estão iguais** |
 | `¬` | NOT | Magia do Inversor | Sempre o **oposto do Artefato A** |
 | `⊼` | NAND | Magia da Negação da Conjunção | Falha **só com ambos ativos** |
 | `⊽` | NOR | Magia da Negação da Disjunção | Ativa **só com ambos inativos** |
