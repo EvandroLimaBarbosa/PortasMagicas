@@ -1,10 +1,10 @@
 const OPERATIONS = [
-  { key: 'AND', sym: '∧', pt: 'AND', tag: 'E', desc: 'Ativa quando A e B estão ativos.' },
-  { key: 'OR', sym: '∨', pt: 'OR', tag: 'OU', desc: 'Ativa quando A ou B (ou ambos) está ativo.' },
+  { key: 'AND', sym: '·', pt: 'AND', tag: 'E', desc: 'Ativa quando A e B estão ativos.' },
+  { key: 'OR', sym: '+', pt: 'OR', tag: 'OU', desc: 'Ativa quando A ou B (ou ambos) está ativo.' },
   { key: 'XOR', sym: '⊕', pt: 'XOR', tag: 'OU exclusivo', desc: 'Ativa quando exatamente um está ativo.' },
   { key: 'NOT', sym: '¬', pt: 'NOT', tag: 'Inversor', desc: 'Sempre o oposto do Artefato A.' },
-  { key: 'NAND', sym: '↑', pt: 'NAND', tag: 'NÃO E', desc: 'O oposto do AND. Falha só com ambos ativos.' },
-  { key: 'NOR', sym: '↓', pt: 'NOR', tag: 'NÃO OU', desc: 'O oposto do OR. Ativa só com ambos inativos.' },
+  { key: 'NAND', sym: '⊼', pt: 'NAND', tag: 'NÃO E', desc: 'O oposto do AND. Falha só com ambos ativos.' },
+  { key: 'NOR', sym: '⊽', pt: 'NOR', tag: 'NÃO OU', desc: 'O oposto do OR. Ativa só com ambos inativos.' },
 ];
 
 const TRUTH = {
@@ -119,19 +119,39 @@ function buildTable() {
 }
 
 function buildMagics() {
-  const grid = $('#magicGrid');
+  const list = $('#magicGrid');
   OPERATIONS.forEach((op) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'magic-card';
+    btn.className = 'magic-option';
     btn.dataset.op = op.key;
     btn.innerHTML = `
-      <span class="magic-sym">${op.sym}</span>
-      <span class="magic-name">${op.pt}<span class="magic-tag">${op.tag}</span></span>
-      <span class="magic-desc">${op.desc}</span>
+      <span class="magic-sym" aria-hidden="true">${op.sym}</span>
+      <span class="magic-info">
+        <span class="magic-name">${op.pt}<span class="magic-tag">${op.tag}</span></span>
+        <span class="magic-desc">${op.desc}</span>
+      </span>
+      <span class="magic-arrow" aria-hidden="true">→</span>
     `;
     btn.addEventListener('click', () => guess(op.key));
-    grid.appendChild(btn);
+    list.appendChild(btn);
+  });
+}
+
+function setupViews() {
+  document.querySelectorAll('.view-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach((t) => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      const name = tab.dataset.view;
+      document.querySelectorAll('.view').forEach((v) => {
+        v.classList.toggle('is-active', v.classList.contains(`view--${name}`));
+      });
+    });
   });
 }
 
@@ -147,7 +167,7 @@ function guess(opKey) {
   game.answered = true;
 
   document.querySelectorAll('.door').forEach((d) => (d.disabled = true));
-  document.querySelectorAll('.magic-card').forEach((b) => (b.disabled = true));
+  document.querySelectorAll('.magic-option').forEach((b) => (b.disabled = true));
   $('#nextRound').disabled = false;
 
   const fb = $('#feedback');
@@ -163,7 +183,7 @@ function guess(opKey) {
       t.textContent = OPERATIONS.find((o) => o.key === game.op).sym;
     });
     document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('open', 'win'));
-    $(`.magic-card[data-op="${opKey}"]`).classList.add('correct');
+    $(`.magic-option[data-op="${opKey}"]`).classList.add('correct');
 
     fb.classList.add('show', 'win');
     icon.textContent = '✨';
@@ -172,8 +192,8 @@ function guess(opKey) {
     game.losses++;
     game.streak = 0;
 
-    $(`.magic-card[data-op="${opKey}"]`).classList.add('wrong');
-    $(`.magic-card[data-op="${game.op}"]`).classList.add('reveal');
+    $(`.magic-option[data-op="${opKey}"]`).classList.add('wrong');
+    $(`.magic-option[data-op="${game.op}"]`).classList.add('reveal');
     document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('shake'));
     setTimeout(() => {
       document.querySelectorAll('.door-holder').forEach((h) => h.classList.remove('shake'));
@@ -203,7 +223,7 @@ function newRound() {
   $('#nextRound').disabled = true;
 
   $('#feedback').classList.remove('show', 'win', 'lose');
-  document.querySelectorAll('.magic-card').forEach((c) => {
+  document.querySelectorAll('.magic-option').forEach((c) => {
     c.classList.remove('correct', 'wrong', 'reveal');
     c.disabled = false;
   });
@@ -223,6 +243,7 @@ function init() {
   loadStats();
   buildTable();
   buildMagics();
+  setupViews();
   newRound();
 
   document.querySelectorAll('.door').forEach((door) => {
