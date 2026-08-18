@@ -10,7 +10,7 @@ Um jogo educacional que transforma **portas lógicas** em **magias de outro univ
 
 1. **Abra as portas** — Clique nas portas A e B para ativar ou desativar os artefatos.
 2. **Observe o sinal** — O orbe central indica se o Portal Sagrado está *ativo* ou *inativo* para cada combinação de artefatos.
-3. **Consulte a tabela de artefatos** — Alterne entre as abas **Portas** e **Tabela** para ver o sinal do portal em todas as combinações possíveis (a linha atual fica destacada).
+3. **Consulte a tabela de artefatos** — Alternne entre as abas **Portas** e **Tabela** para ver o sinal do portal em todas as combinações possíveis (a linha atual fica destacada).
 4. **Descubra a magia** — Escolha qual operação lógica controla o portal. Acertou? As portas se abrem e revelam o tesouro! Errou? O selo mágico te repele — mas agora você sabe qual era a resposta.
 
 ## 🧙 As magias do portal
@@ -37,6 +37,20 @@ Um jogo educacional que transforma **portas lógicas** em **magias de outro univ
 - **HTML5** — estrutura semântica e acessível
 - **CSS3** — tema místico com gradientes, animações e dark mode
 - **JavaScript** (vanilla) — lógica do jogo, sem dependências
+
+## 🚀 Como executar
+
+Como é um projeto 100% estático, basta abrir o `index.html` no navegador ou servir a pasta com qualquer servidor local:
+
+```bash
+# Python
+python -m http.server 8000
+
+# Node.js
+npx serve .
+```
+
+Depois acesse `http://localhost:8000`.
 
 ## 🏗️ Estrutura do projeto
 
