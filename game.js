@@ -1,364 +1,257 @@
-/**
- * O MISTÉRIO DAS PORTAS MÁGICAS - LÓGICA DO JOGO
- */
+const OPERATIONS = [
+  { key: 'AND', sym: '·', pt: 'AND', tag: 'E', desc: 'Ativa quando A e B estão ativos.' },
+  { key: 'OR', sym: '+', pt: 'OR', tag: 'OU', desc: 'Ativa quando A ou B (ou ambos) está ativo.' },
+  { key: 'XOR', sym: '⊕', pt: 'XOR', tag: 'OU exclusivo', desc: 'Ativa quando exatamente um está ativo.' },
+  { key: 'XNOR', sym: '⊙', pt: 'XNOR', tag: 'Igual', desc: 'Ativa quando A e B estão iguais.' },
+  { key: 'NOT', sym: '¬', pt: 'NOT', tag: 'Inversor', desc: 'Sempre o oposto do Artefato A.' },
+  { key: 'NAND', sym: '⊼', pt: 'NAND', tag: 'NÃO E', desc: 'O oposto do AND. Falha só com ambos ativos.' },
+  { key: 'NOR', sym: '⊽', pt: 'NOR', tag: 'NÃO OU', desc: 'O oposto do OR. Ativa só com ambos inativos.' },
+];
 
-// 1. Catálogo de Portas Lógicas (Magias)
-const GATES = {
-  AND: {
-    id: 'AND',
-    name: 'AND',
-    tag: 'E',
-    sym: '•',
-    desc: 'Ativa quando A e B estão ativos.',
-    eval: (a, b) => a && b,
-  },
-  OR: {
-    id: 'OR',
-    name: 'OR',
-    tag: 'OU',
-    sym: '+',
-    desc: 'Ativa quando A ou B (ou ambos) está ativo.',
-    eval: (a, b) => a || b,
-  },
-  XOR: {
-    id: 'XOR',
-    name: 'XOR',
-    tag: 'OU EXCLUSIVO',
-    sym: '⊕',
-    desc: 'Ativa quando exatamente um está ativo.',
-    eval: (a, b) => (a || b) && !(a && b),
-  },
-  XNOR: {
-    id: 'XNOR',
-    name: 'XNOR',
-    tag: 'IGUAL',
-    sym: '⊙',
-    desc: 'Ativa quando A e B são iguais.',
-    eval: (a, b) => a === b,
-  },
-  NOT: {
-    id: 'NOT',
-    name: 'NOT',
-    tag: 'INVERSOR',
-    sym: '¬',
-    desc: 'Sempre o oposto do Artefato A.',
-    eval: (a, b) => !a,
-  },
-  NAND: {
-    id: 'NAND',
-    name: 'NAND',
-    tag: 'NÃO E',
-    sym: 'bar',
-    desc: 'O oposto do AND. Falha só com ambos ativos.',
-    eval: (a, b) => !(a && b),
-  },
-  NOR: {
-    id: 'NOR',
-    name: 'NOR',
-    tag: 'NÃO OU',
-    sym: '⊽',
-    desc: 'O oposto do OR. Ativa só com ambos inativos.',
-    eval: (a, b) => !(a || b),
-  },
+const TRUTH = {
+  AND: [0, 0, 0, 1],
+  OR: [0, 1, 1, 1],
+  XOR: [0, 1, 1, 0],
+  XNOR: [1, 0, 0, 1],
+  NOT: [1, 1, 0, 0],
+  NAND: [1, 1, 1, 0],
+  NOR: [1, 0, 0, 0],
 };
 
-// 2. Estado do Jogo
-const state = {
-  round: 1,
+const COMBOS = [
+  [0, 0],
+  [0, 1],
+  [1, 0],
+  [1, 1],
+];
+
+const game = {
+  op: null,
+  A: 0,
+  B: 0,
+  answered: false,
+  round: 0,
   wins: 0,
   losses: 0,
   streak: 0,
-  doorA: false,
-  doorB: false,
-  secretGate: null,
-  answered: false,
-  activeView: 'doors', // 'doors' | 'table'
 };
 
-// 3. Referências de Elementos do DOM
-const dom = {
-  roundNum: document.getElementById('roundNum'),
-  statWins: document.getElementById('statWins'),
-  statLosses: document.getElementById('statLosses'),
-  statStreak: document.getElementById('statStreak'),
-  doorA: document.getElementById('doorA'),
-  doorB: document.getElementById('doorB'),
-  btnDoorA: document.querySelector('[data-door="A"]'),
-  btnDoorB: document.querySelector('[data-door="B"]'),
-  signalOrb: document.getElementById('signalOrb'),
-  signalText: document.getElementById('signalText'),
-  truthBody: document.getElementById('truthBody'),
-  magicGrid: document.getElementById('magicGrid'),
-  nextRoundBtn: document.getElementById('nextRound'),
-  feedback: document.getElementById('feedback'),
-  feedbackIcon: document.getElementById('feedbackIcon'),
-  feedbackText: document.getElementById('feedbackText'),
-  viewTabs: document.querySelectorAll('.view-tab'),
-  views: document.querySelectorAll('.view'),
-};
+const $ = (sel) => document.querySelector(sel);
 
-// 4. Inicialização do Jogo
-function init() {
-  bindEvents();
-  renderMagicGrid();
-  startNewRound();
+function saveStats() {
+  localStorage.setItem(
+    'portas-magicas-stats',
+    JSON.stringify({
+      wins: game.wins,
+      losses: game.losses,
+      streak: game.streak,
+    })
+  );
 }
 
-// 5. Event Listeners
-function bindEvents() {
-  // Toggle das Portas
-  dom.btnDoorA.addEventListener('click', () => toggleDoor('A'));
-  dom.btnDoorB.addEventListener('click', () => toggleDoor('B'));
+function loadStats() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('portas-magicas-stats'));
+    if (saved && typeof saved === 'object') {
+      game.wins = +saved.wins || 0;
+      game.losses = +saved.losses || 0;
+      game.streak = +saved.streak || 0;
+    }
+  } catch (err) {
+    /* ignore dados corrompidos */
+  }
+}
 
-  // Botão da Próxima Rodada
-  dom.nextRoundBtn.addEventListener('click', startNewRound);
+function setArtifact(which, val) {
+  game[which] = val;
+  const holder = $(`#door${which}`);
+  holder.querySelector('.artifact').classList.toggle('on', !!val);
+  holder.querySelector('.door__state').classList.toggle('on', !!val);
+  holder.querySelector('.door__state').textContent = val ? 'Ativo' : 'Inativo';
+  const doorBtn = holder.querySelector('.door');
+  doorBtn.setAttribute('aria-pressed', val ? 'true' : 'false');
+}
 
-  // Alternância de Abas (Portas / Tabela)
-  dom.viewTabs.forEach((tab) => {
+function currentSignal() {
+  return TRUTH[game.op][game.A * 2 + game.B];
+}
+
+function updateSignal() {
+  const on = !!currentSignal();
+  $('#signalOrb').classList.toggle('on', on);
+  $('#signalText').classList.toggle('on', on);
+  $('#signalText').textContent = on ? 'Ativo' : 'Inativo';
+}
+
+function renderTable() {
+  const truth = TRUTH[game.op];
+  $('#truthBody').querySelectorAll('.truth-row').forEach((row, i) => {
+    row.querySelector('.dot--sig').classList.toggle('on--sig', !!truth[i]);
+    row.querySelector('.sig-text').textContent = truth[i] ? 'Ativo' : 'Inativo';
+  });
+  highlightCurrentRow();
+}
+
+function highlightCurrentRow() {
+  const idx = game.A * 2 + game.B;
+  $('#truthBody').querySelectorAll('.truth-row').forEach((row, i) => {
+    row.classList.toggle('current', i === idx);
+  });
+}
+
+function buildTable() {
+  const body = $('#truthBody');
+  COMBOS.forEach(([a, b], i) => {
+    const row = document.createElement('div');
+    row.className = 'truth-row';
+    row.setAttribute('role', 'row');
+    row.innerHTML = `
+      <span class="truth-cell" role="cell">
+        <span class="dot ${a ? 'on--a' : ''}"></span><span>${a ? 'Ativo' : 'Inativo'}</span>
+      </span>
+      <span class="truth-cell" role="cell">
+        <span class="dot ${b ? 'on--b' : ''}"></span><span>${b ? 'Ativo' : 'Inativo'}</span>
+      </span>
+      <span class="truth-cell" role="cell">
+        <span class="dot dot--sig"></span><span class="sig-text">Inativo</span>
+      </span>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function buildMagics() {
+  const list = $('#magicGrid');
+  OPERATIONS.forEach((op) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'magic-option';
+    btn.dataset.op = op.key;
+    btn.innerHTML = `
+      <span class="magic-sym" aria-hidden="true">${op.sym}</span>
+      <span class="magic-info">
+        <span class="magic-name">${op.pt}<span class="magic-tag">${op.tag}</span></span>
+        <span class="magic-desc">${op.desc}</span>
+      </span>
+      <span class="magic-arrow" aria-hidden="true">→</span>
+    `;
+    btn.addEventListener('click', () => guess(op.key));
+    list.appendChild(btn);
+  });
+}
+
+function setupViews() {
+  document.querySelectorAll('.view-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      const viewTarget = tab.getAttribute('data-view');
-      switchView(viewTarget);
+      document.querySelectorAll('.view-tab').forEach((t) => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      const name = tab.dataset.view;
+      document.querySelectorAll('.view').forEach((v) => {
+        v.classList.toggle('is-active', v.classList.contains(`view--${name}`));
+      });
     });
   });
 }
 
-// 6. Troca de Abas
-function switchView(targetView) {
-  state.activeView = targetView;
-
-  dom.viewTabs.forEach((tab) => {
-    const isActive = tab.getAttribute('data-view') === targetView;
-    tab.classList.toggle('is-active', isActive);
-    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-  });
-
-  dom.views.forEach((view) => {
-    const isTarget = view.classList.contains(`view--${targetView}`);
-    view.classList.toggle('is-active', isTarget);
-  });
+function toggleDoor(which) {
+  if (game.answered) return;
+  setArtifact(which, game[which] ? 0 : 1);
+  updateSignal();
+  highlightCurrentRow();
 }
 
-// 7. Lógica das Rodadas
-function startNewRound() {
-  state.answered = false;
-  state.doorA = false;
-  state.doorB = false;
+function guess(opKey) {
+  if (game.answered) return;
+  game.answered = true;
 
-  // Seleciona uma magia aleatória
-  const gateKeys = Object.keys(GATES);
-  const randomIndex = Math.floor(Math.random() * gateKeys.length);
-  state.secretGate = GATES[gateKeys[randomIndex]];
+  document.querySelectorAll('.door').forEach((d) => (d.disabled = true));
+  document.querySelectorAll('.magic-option').forEach((b) => (b.disabled = true));
+  $('#nextRound').disabled = false;
 
-  // Reset visual das portas e botões
-  closeDoors();
-  updateDoorStates();
-  renderTruthTable();
-  resetMagicGridUI();
-  hideFeedback();
+  const fb = $('#feedback');
+  const icon = $('#feedbackIcon');
+  const text = $('#feedbackText');
+  const opName = OPERATIONS.find((o) => o.key === opKey).pt;
 
-  dom.nextRoundBtn.disabled = true;
-  dom.roundNum.textContent = state.round;
-}
+  if (opKey === game.op) {
+    game.wins++;
+    game.streak++;
 
-function toggleDoor(doorLetter) {
-  if (state.answered) return;
-
-  if (doorLetter === 'A') {
-    state.doorA = !state.doorA;
-  } else if (doorLetter === 'B') {
-    state.doorB = !state.doorB;
-  }
-
-  updateDoorStates();
-}
-
-function updateDoorStates() {
-  const isA = state.doorA;
-  const isB = state.doorB;
-
-  // Atualizar Estado A
-  dom.btnDoorA.setAttribute('aria-pressed', isA);
-  const stateAEl = dom.doorA.querySelector('.door__state');
-  const artifactAEl = dom.doorA.querySelector('.artifact');
-  stateAEl.textContent = isA ? 'Ativo' : 'Inativo';
-  stateAEl.classList.toggle('on', isA);
-  artifactAEl.classList.toggle('on', isA);
-
-  // Atualizar Estado B
-  dom.btnDoorB.setAttribute('aria-pressed', isB);
-  const stateBEl = dom.doorB.querySelector('.door__state');
-  const artifactBEl = dom.doorB.querySelector('.artifact');
-  stateBEl.textContent = isB ? 'Ativo' : 'Inativo';
-  stateBEl.classList.toggle('on', isB);
-  artifactBEl.classList.toggle('on', isB);
-
-  // Calcular Sinal do Portal usando a Magia Secreta
-  const signalOn = state.secretGate.eval(isA, isB);
-
-  dom.signalOrb.classList.toggle('on', signalOn);
-  dom.signalText.classList.toggle('on', signalOn);
-  dom.signalText.textContent = signalOn ? 'Ativo' : 'Inativo';
-
-  highlightTruthTableRow(isA, isB);
-}
-
-// 8. Tabela de Verdade
-function renderTruthTable() {
-  const combinations = [
-    { a: false, b: false },
-    { a: false, b: true },
-    { a: true, b: false },
-    { a: true, b: true },
-  ];
-
-  dom.truthBody.innerHTML = combinations
-    .map((combo) => {
-      const sig = state.secretGate.eval(combo.a, combo.b);
-      return `
-        <div class="truth-row" data-a="${combo.a}" data-b="${combo.b}" role="row">
-          <span class="truth-cell">
-            <span class="dot ${combo.a ? 'on--a' : ''}"></span>
-            ${combo.a ? 'Ativo' : 'Inativo'}
-          </span>
-          <span class="truth-cell">
-            <span class="dot ${combo.b ? 'on--b' : ''}"></span>
-            ${combo.b ? 'Ativo' : 'Inativo'}
-          </span>
-          <span class="truth-cell">
-            <span class="dot ${sig ? 'on--sig' : ''}"></span>
-            ${sig ? 'Ativo' : 'Inativo'}
-          </span>
-        </div>
-      `;
-    })
-    .join('');
-}
-
-function highlightTruthTableRow(isA, isB) {
-  const rows = dom.truthBody.querySelectorAll('.truth-row');
-  rows.forEach((row) => {
-    const rowA = row.getAttribute('data-a') === 'true';
-    const rowB = row.getAttribute('data-b') === 'true';
-    const isCurrent = rowA === isA && rowB === isB;
-    row.classList.toggle('current', isCurrent);
-  });
-}
-
-// 9. Opções de Magia (Grid de Escolha)
-function renderMagicGrid() {
-  dom.magicGrid.innerHTML = Object.values(GATES)
-    .map((gate) => {
-      return `
-        <button type="button" class="magic-option" data-gate="${gate.id}">
-          <span class="magic-sym" aria-hidden="true">${gate.sym}</span>
-          <span class="magic-info">
-            <span class="magic-name">
-              ${gate.name}
-              <span class="magic-tag">${gate.tag}</span>
-            </span>
-            <span class="magic-desc">${gate.desc}</span>
-          </span>
-          <span class="magic-arrow" aria-hidden="true">→</span>
-        </button>
-      `;
-    })
-    .join('');
-
-  // Event Listeners dos cards de magia
-  const options = dom.magicGrid.querySelectorAll('.magic-option');
-  options.forEach((opt) => {
-    opt.addEventListener('click', () => {
-      const gateId = opt.getAttribute('data-gate');
-      handleAnswer(gateId, opt);
+    document.querySelectorAll('.treasure').forEach((t) => {
+      t.textContent = OPERATIONS.find((o) => o.key === game.op).sym;
     });
-  });
-}
+    document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('open', 'win'));
+    $(`.magic-option[data-op="${opKey}"]`).classList.add('correct');
 
-function resetMagicGridUI() {
-  const options = dom.magicGrid.querySelectorAll('.magic-option');
-  options.forEach((opt) => {
-    opt.disabled = false;
-    opt.classList.remove('correct', 'wrong', 'reveal');
-  });
-}
-
-// 10. Processar Resposta do Jogador
-function handleAnswer(selectedGateId, clickedBtn) {
-  if (state.answered) return;
-  state.answered = true;
-
-  const isCorrect = selectedGateId === state.secretGate.id;
-  const options = dom.magicGrid.querySelectorAll('.magic-option');
-
-  // Desabilita todas as opções
-  options.forEach((opt) => (opt.disabled = true));
-
-  if (isCorrect) {
-    state.wins++;
-    state.streak++;
-    clickedBtn.classList.add('correct');
-    openDoors();
-    showFeedback(
-      true,
-      `<strong>Impressionante!</strong> A magia correta era realmente <strong>${state.secretGate.name}</strong>.`
-    );
+    fb.classList.add('show', 'win');
+    icon.textContent = '✨';
+    text.innerHTML = `Parabéns! Você desvendou a magia — o portal é controlado por <strong>${opName}</strong>.`;
   } else {
-    state.losses++;
-    state.streak = 0;
-    clickedBtn.classList.add('wrong');
-    shakeDoors();
+    game.losses++;
+    game.streak = 0;
 
-    // Revela a opção correta
-    const correctBtn = dom.magicGrid.querySelector(
-      `[data-gate="${state.secretGate.id}"]`
-    );
-    if (correctBtn) correctBtn.classList.add('reveal');
+    $(`.magic-option[data-op="${opKey}"]`).classList.add('wrong');
+    $(`.magic-option[data-op="${game.op}"]`).classList.add('reveal');
+    document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('shake'));
+    setTimeout(() => {
+      document.querySelectorAll('.door-holder').forEach((h) => h.classList.remove('shake'));
+    }, 600);
 
-    showFeedback(
-      false,
-      `<strong>Que pena!</strong> A magia correta era <strong>${state.secretGate.name}</strong> (${state.secretGate.tag}).`
-    );
+    fb.classList.add('show', 'lose');
+    icon.textContent = '🚫';
+    text.innerHTML = `Errou! O selo mágico te repeliu. A magia correta era <strong>${OPERATIONS.find((o) => o.key === game.op).pt}</strong>.`;
   }
 
-  // Atualiza Placar e habilita o botão de próxima rodada
-  updateStats();
-  state.round++;
-  dom.nextRoundBtn.disabled = false;
+  $('#statWins').textContent = game.wins;
+  $('#statLosses').textContent = game.losses;
+  $('#statStreak').textContent = game.streak;
+  saveStats();
 }
 
-// 11. Animações e Feedbacks
-function openDoors() {
-  dom.doorA.classList.add('open');
-  dom.doorB.classList.add('open');
+function newRound() {
+  game.round++;
+  game.answered = false;
+
+  const ops = OPERATIONS.map((o) => o.key);
+  game.op = ops[Math.floor(Math.random() * ops.length)];
+  game.A = Math.random() < 0.5 ? 0 : 1;
+  game.B = Math.random() < 0.5 ? 0 : 1;
+
+  $('#roundNum').textContent = game.round;
+  $('#nextRound').disabled = true;
+
+  $('#feedback').classList.remove('show', 'win', 'lose');
+  document.querySelectorAll('.magic-option').forEach((c) => {
+    c.classList.remove('correct', 'wrong', 'reveal');
+    c.disabled = false;
+  });
+  document.querySelectorAll('.door-holder').forEach((h) => {
+    h.classList.remove('open', 'win', 'shake');
+    h.querySelector('.door').disabled = false;
+  });
+  document.querySelectorAll('.treasure').forEach((t) => (t.textContent = ''));
+
+  setArtifact('A', game.A);
+  setArtifact('B', game.B);
+  updateSignal();
+  renderTable();
 }
 
-function closeDoors() {
-  dom.doorA.classList.remove('open', 'shake');
-  dom.doorB.classList.remove('open', 'shake');
+function init() {
+  loadStats();
+  buildTable();
+  buildMagics();
+  setupViews();
+  newRound();
+
+  document.querySelectorAll('.door').forEach((door) => {
+    door.addEventListener('click', () => toggleDoor(door.dataset.door));
+  });
+  $('#nextRound').addEventListener('click', newRound);
 }
 
-function shakeDoors() {
-  dom.doorA.classList.add('shake');
-  dom.doorB.classList.add('shake');
-}
-
-function showFeedback(isWin, messageHTML) {
-  dom.feedback.className = `feedback show ${isWin ? 'win' : 'lose'}`;
-  dom.feedbackIcon.textContent = isWin ? '✨' : '💥';
-  dom.feedbackText.innerHTML = messageHTML;
-}
-
-function hideFeedback() {
-  dom.feedback.className = 'feedback';
-  dom.feedbackIcon.textContent = '';
-  dom.feedbackText.innerHTML = '';
-}
-
-function updateStats() {
-  dom.statWins.textContent = state.wins;
-  dom.statLosses.textContent = state.losses;
-  dom.statStreak.textContent = state.streak;
-}
-
-// Iniciar ao carregar a página
-document.addEventListener('DOMContentLoaded', init);
+init();
