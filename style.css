@@ -1562,9 +1562,19 @@ body::after {
 
   /* Cards */
   .card {
-    margin-top: 0.5rem;
-    padding: 0.6rem 0.65rem;
+    margin-top: 0.45rem;
+    padding: 0.55rem 0.6rem;
     border-radius: 0.9rem;
+  }
+
+  /* Palco fixo: a tabela nunca é cortada */
+  .card.stage {
+    flex: 0 0 auto;
+  }
+
+  .card.magic-card {
+    flex: 1 1 auto;
+    min-height: 3rem;
   }
 
   /* Portas + tabela juntas, sem abas */
@@ -1588,8 +1598,8 @@ body::after {
   }
 
   .door-holder {
-    width: clamp(4.2rem, 24vw, 5.2rem);
-    height: clamp(6.2rem, 34vw, 7.4rem);
+    width: clamp(3.9rem, 22vw, 4.8rem);
+    height: clamp(5.2rem, 29vw, 6.2rem);
   }
 
   .doorway {
@@ -1635,23 +1645,23 @@ body::after {
   .signal {
     flex: 1;
     min-width: 0;
-    gap: 0.25rem;
-    padding: 0.45rem 0.3rem;
+    gap: 0.2rem;
+    padding: 0.35rem 0.3rem;
     border-radius: 0.8rem;
   }
 
   .signal__label {
-    font-size: 0.5rem;
+    font-size: 0.48rem;
     letter-spacing: 0.08em;
   }
 
   .signal__orb {
-    width: clamp(1.5rem, 8vw, 1.8rem);
-    height: clamp(1.5rem, 8vw, 1.8rem);
+    width: clamp(1.3rem, 7vw, 1.6rem);
+    height: clamp(1.3rem, 7vw, 1.6rem);
   }
 
   .signal__text {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
   }
 
   .hint {
@@ -1673,25 +1683,30 @@ body::after {
 
   .truth-head,
   .truth-cell {
-    padding: 0.3rem 0.3rem;
+    padding: 0.18rem 0.3rem;
     justify-content: center;
   }
 
   .truth-head {
     display: block;
     text-align: center;
-    font-size: 0.56rem;
+    font-size: 0.5rem;
     letter-spacing: 0.05em;
   }
 
   .truth-cell {
-    gap: 0.28rem;
-    font-size: 0.68rem;
+    gap: 0.2rem;
+    font-size: 0.6rem;
+    line-height: 1.2;
+  }
+
+  .truth-row.current {
+    outline-offset: -2px;
   }
 
   .dot {
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.42rem;
+    height: 0.42rem;
   }
 
   /* Magias: lista vertical comprimida (cabe em uma tela) */
@@ -1752,7 +1767,7 @@ body::after {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.2rem;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -1760,18 +1775,24 @@ body::after {
   .magic-option {
     flex-direction: row;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.4rem;
     flex: 1 1 auto;
-    min-height: 0;
-    padding: 0.3rem 0.65rem;
-    border-radius: 0.7rem;
+    min-height: 26px;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.65rem;
     overflow: hidden;
   }
 
   .magic-sym {
-    width: 1.9rem;
-    height: 1.9rem;
-    font-size: 1.05rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.9rem;
+  }
+
+  .magic-icon-img {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 1;
   }
 
   .magic-info {
@@ -1782,7 +1803,7 @@ body::after {
   }
 
   .magic-name {
-    font-size: 0.78rem;
+    font-size: 0.68rem;
     white-space: nowrap;
   }
 
@@ -1795,13 +1816,13 @@ body::after {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.6rem;
-    line-height: 1.3;
+    font-size: 0.52rem;
+    line-height: 1.2;
   }
 
   .magic-arrow {
     display: inline-flex;
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 
   .magic-card.has-result .magic-actions {
