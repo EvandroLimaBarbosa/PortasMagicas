@@ -31,6 +31,7 @@
 
       <section class="card stage" aria-label="Palco do jogo">
         <div class="timer-bar" aria-hidden="true"><span id="timerFill"></span></div>
+        <span class="timer-count" id="timerCount" aria-hidden="true">10</span>
         <div class="view-switch" role="tablist" aria-label="Alternar visão do palco">
           <button
             type="button"
@@ -125,24 +126,6 @@
         <div class="card-head">
           <h2 id="magic-title">Qual magia controla o portal?</h2>
           <span class="card-sub">Escolha uma opção</span>
-          <div class="timer-zone" aria-label="Tempo por rodada">
-            <span class="timer-chip" title="Tempo para adivinhar">
-              <span class="timer-icon" aria-hidden="true">⏱</span>
-              <b id="timerSecs">15</b><span>s</span>
-            </span>
-            <button
-              type="button"
-              class="timer-btn"
-              id="timerMinus"
-              aria-label="Diminuir tempo"
-            >−</button>
-            <button
-              type="button"
-              class="timer-btn"
-              id="timerPlus"
-              aria-label="Aumentar tempo"
-            >+</button>
-          </div>
         </div>
         <div class="progress-row" aria-label="Progresso de domínio">
           <span class="progress-label">Domínio</span>

@@ -55,34 +55,20 @@ const game = {
 
 const $ = (sel) => document.querySelector(sel);
 
-let timeLimit = 15; // segundos por rodada (ajustável)
-const TIME_MIN = 8;
-const TIME_MAX = 30;
+const TIME_BASE = 10; // segundos por rodada (mais curto: ritmo arcade)
+const TIME_FLOOR = 4; // nunca desce disso
+const TIME_BLOCK = 5; // -1s a cada bloco de rodadas
+const TIME_BONUS_CAP = 3; // +1s por acerto seguido, no maximo +3s
 let ticker = null;
 
-function loadTimeLimit() {
-  try {
-    const v = parseInt(localStorage.getItem('portas-magicas-time'), 10);
-    if (!Number.isNaN(v)) timeLimit = Math.min(TIME_MAX, Math.max(TIME_MIN, v));
-  } catch (err) {
-    /* padrão 15s */
-  }
+function timeForRound(round) {
+  const penalty = Math.floor((round - 1) / TIME_BLOCK);
+  return Math.max(TIME_FLOOR, TIME_BASE - penalty);
 }
 
-function saveTimeLimit() {
-  try {
-    localStorage.setItem('portas-magicas-time', String(timeLimit));
-  } catch (err) {
-    /* sem persistência */
-  }
-}
-
-function setTimeLimit(delta) {
-  timeLimit = Math.min(TIME_MAX, Math.max(TIME_MIN, timeLimit + delta));
-  const el = $('#timerSecs');
-  if (el) el.textContent = timeLimit;
-  saveTimeLimit();
-  if (!game.answered) startTimer(); // aplica na rodada atual
+function effectiveTime(round, streak) {
+  const bonus = Math.min(streak, TIME_BONUS_CAP);
+  return Math.min(TIME_BASE + TIME_BONUS_CAP, timeForRound(round) + bonus);
 }
 
 function stopTimer() {
@@ -95,9 +81,11 @@ function stopTimer() {
 function startTimer() {
   stopTimer();
   const fill = $('#timerFill');
+  const count = $('#timerCount');
   if (!fill) return;
   const start = performance.now();
-  const total = timeLimit * 1000;
+  const total = effectiveTime(game.round, game.streak) * 1000;
+  if (count) count.textContent = effectiveTime(game.round, game.streak);
   fill.style.width = '100%';
   fill.classList.remove('low');
 
@@ -106,6 +94,10 @@ function startTimer() {
     const pct = Math.max(0, (left / total) * 100);
     fill.style.width = pct + '%';
     fill.classList.toggle('low', pct < 30);
+    if (count) {
+      const rem = Math.max(0, Math.ceil(left / 1000));
+      if (+count.textContent !== rem) count.textContent = rem;
+    }
     if (left <= 0) {
       stopTimer();
       if (!game.answered) timeoutRound();
@@ -429,6 +421,9 @@ function guess(opKey) {
       icon.textContent = '✨';
       text.innerHTML = `Acertou! O portal é controlado por <strong>${correctOp.pt}</strong>.`;
     }
+    if (game.streak >= 2 && mastered === false) {
+      showToast(`Sequência x${game.streak} · +1s na próxima rodada`);
+    }
   } else {
     game.losses++;
     game.streak = 0;
@@ -470,6 +465,7 @@ function newRound() {
   game.B = Math.random() < 0.5 ? 0 : 1;
 
   $('#roundNum').textContent = game.round;
+  $('#timerCount').textContent = effectiveTime(game.round, game.streak);
   const nb = $('#nextRound');
   nb.disabled = true;
   nb.classList.remove('btn-pop');
@@ -525,7 +521,6 @@ function rebloomOptions() {
 
 function init() {
   loadStats();
-  loadTimeLimit();
   buildTable();
   buildMagics();
   setupViews();
@@ -535,11 +530,6 @@ function init() {
     door.addEventListener('click', () => toggleDoor(door.dataset.door));
   });
   $('#nextRound').addEventListener('click', newRound);
-  $('#timerMinus').addEventListener('click', () => setTimeLimit(-1));
-  $('#timerPlus').addEventListener('click', () => setTimeLimit(1));
-
-  const secs = $('#timerSecs');
-  secs.textContent = timeLimit;
 }
 
 init();

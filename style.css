@@ -879,56 +879,16 @@ body::after {
   }
 }
 
-/* Stepper do tempo */
-.timer-zone {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-left: auto;
-}
-
-.timer-chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.15rem;
-  padding: 0.28rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--gold);
-  background: rgba(246, 199, 106, 0.08);
-  border: 1px solid rgba(246, 199, 106, 0.35);
-}
-
-.timer-chip .timer-icon {
-  font-size: 0.9rem;
-}
-
-.timer-btn {
-  width: 1.5rem;
-  height: 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font: inherit;
+.timer-count {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 6;
+  font-size: 0.66rem;
   font-weight: 800;
-  color: var(--text);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-}
-
-.timer-btn:hover:not(:disabled) {
-  border-color: var(--line-gold);
-  background: var(--surface-hover);
-  transform: translateY(-1px);
-}
-
-.timer-btn:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  pointer-events: none;
 }
 
 /* Flash suave dourado na troca de rodada (gatilho sem banner) */
@@ -1672,20 +1632,10 @@ body::after {
     height: 4px;
   }
 
-  .timer-zone {
-    gap: 0.2rem;
-    margin-left: auto;
-  }
-
-  .timer-chip {
-    padding: 0.18rem 0.45rem;
-    font-size: 0.68rem;
-  }
-
-  .timer-btn {
-    width: 1.25rem;
-    height: 1.25rem;
-    font-size: 0.85rem;
+  .timer-count {
+    top: 6px;
+    right: 10px;
+    font-size: 0.6rem;
   }
 
   .progress-row {
