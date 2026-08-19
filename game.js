@@ -522,17 +522,31 @@ function rebloomOptions() {
   }, 600);
 }
 
+function startGame() {
+  const intro = $('#intro');
+  if (intro) intro.classList.add('is-hidden');
+  const shell = $('.shell');
+  if (shell) shell.classList.add('has-started');
+  newRound();
+}
+
 function init() {
   loadStats();
   buildTable();
   buildMagics();
   setupViews();
-  newRound();
+
+  renderStats();
+  $('#roundNum').textContent = 1;
+  $('#timerCount').textContent = effectiveTime(1, 0);
+  applyLocks();
+  renderProgress();
 
   document.querySelectorAll('.door').forEach((door) => {
     door.addEventListener('click', () => toggleDoor(door.dataset.door));
   });
   $('#nextRound').addEventListener('click', newRound);
+  $('#startGame').addEventListener('click', startGame);
 }
 
 init();
