@@ -122,19 +122,23 @@ function buildTable() {
 
 function buildMagics() {
   const list = $('#magicGrid');
+  list.innerHTML = ''; // Limpa antes de renderizar
+
   OPERATIONS.forEach((op) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'magic-option';
     btn.dataset.op = op.key;
+    
     btn.innerHTML = `
-      <span class="magic-sym" aria-hidden="true">${op.sym}</span>
-      <span class="magic-info">
+      <img class="magic-icon-img" src="icons/${op.key.toLowerCase()}.png" alt="${op.pt}" draggable="false">
+      <div class="magic-info">
         <span class="magic-name">${op.pt}<span class="magic-tag">${op.tag}</span></span>
         <span class="magic-desc">${op.desc}</span>
-      </span>
+      </div>
       <span class="magic-arrow" aria-hidden="true">→</span>
     `;
+    
     btn.addEventListener('click', () => guess(op.key));
     list.appendChild(btn);
   });
