@@ -9,25 +9,23 @@
   <body>
     <main class="shell">
       <header class="hero">
-        <p class="kicker">Desafio de Lógica & Magia</p>
+        <p class="kicker">Jogo das Portas Mágicas</p>
         <h1 class="hero__title">
           O Mistério das <span class="accent">Portas Mágicas</span>
         </h1>
         <p class="hero__sub">
-          Duas portas, dois artefatos e um feitiço de lógica controlando o Portal Sagrado.
-          Alterne o estado dos artefatos nas portas para desvendar o padrão da magia!
+          Duas portas, dois artefatos e uma magia lógica controlando o Portal
+          Sagrado. Clique nas portas para descobrir a lógica — e, se precisar,
+          revele a tabela.
         </p>
-
-        <!-- Painel de Progresso e Gamificação -->
         <div class="hero-meta">
-          <div class="chip">Rodada <b id="roundNum">1</b></div>
-          <div class="chip">Nível <b id="levelNum">1</b></div>
-          <div class="chip chip--gold">Sequência <b id="statStreak">0 🔥</b></div>
-          <div class="chip">Pontos <b id="statScore">0</b></div>
+          <span class="chip">Rodada <b id="roundNum">1</b></span>
+          <span class="chip">Acertos <b id="statWins">0</b></span>
+          <span class="chip">Erros <b id="statLosses">0</b></span>
+          <span class="chip chip--gold">Sequência <b id="statStreak">0</b></span>
         </div>
       </header>
 
-      <!-- Área Principal do Palco -->
       <section class="card stage" aria-label="Palco do jogo">
         <div class="view-switch" role="tablist" aria-label="Alternar visão do palco">
           <button
@@ -37,7 +35,7 @@
             aria-selected="true"
             data-view="doors"
           >
-            🔮 Portas Interativas
+            Portas
           </button>
           <button
             type="button"
@@ -46,19 +44,17 @@
             aria-selected="false"
             data-view="table"
           >
-            📜 Tabela da Verdade
+            Tabela de artefatos
           </button>
         </div>
 
-        <!-- Visão 1: Portas Mágicas -->
         <div class="view view--doors is-active" role="tabpanel">
           <div class="portal" aria-label="Portas mágicas com artefatos">
-            <!-- Porta A -->
             <div class="door-holder" id="doorA">
               <div class="doorway">
-                <span class="treasure" aria-hidden="true">💎</span>
+                <span class="treasure" aria-hidden="true"></span>
               </div>
-              <button class="door" type="button" data-door="A" aria-pressed="false" title="Clique para alternar o Artefato A">
+              <button class="door" type="button" data-door="A" aria-pressed="false">
                 <span class="door__window">
                   <span class="artifact artifact--gold" aria-hidden="true"></span>
                 </span>
@@ -70,19 +66,17 @@
               </button>
             </div>
 
-            <!-- Sinal Central do Portal -->
             <div class="signal">
-              <span class="signal__label">Sinal do Portal</span>
+              <span class="signal__label">Sinal do portal</span>
               <span class="signal__orb" id="signalOrb" aria-hidden="true"></span>
               <span class="signal__text" id="signalText">Inativo</span>
             </div>
 
-            <!-- Porta B -->
             <div class="door-holder door-holder--b" id="doorB">
               <div class="doorway">
-                <span class="treasure" aria-hidden="true">🔮</span>
+                <span class="treasure" aria-hidden="true"></span>
               </div>
-              <button class="door" type="button" data-door="B" aria-pressed="false" title="Clique para alternar o Artefato B">
+              <button class="door" type="button" data-door="B" aria-pressed="false">
                 <span class="door__window">
                   <span class="artifact artifact--cyan" aria-hidden="true"></span>
                 </span>
@@ -95,41 +89,40 @@
             </div>
           </div>
           <p class="hint">
-            💡 <strong>Dica:</strong> Clique nas portas para testar as 4 combinações possíveis (Inativo/Ativo) e observar quando o portal se acende.
+            Clique nas portas para alternar o estado dos artefatos e observe o
+            sinal do portal.
           </p>
         </div>
 
-        <!-- Visão 2: Tabela da Verdade -->
         <div class="view view--table" role="tabpanel">
           <div class="truth-table" role="table" aria-label="Tabela de artefatos">
             <div class="truth-row truth-row--head" role="row">
               <span class="truth-head" role="columnheader">Artefato A</span>
               <span class="truth-head" role="columnheader">Artefato B</span>
-              <span class="truth-head" role="columnheader">Sinal Gerado</span>
+              <span class="truth-head" role="columnheader">Sinal gerado</span>
             </div>
             <div id="truthBody"></div>
           </div>
           <p class="hint">
-            A linha destacada representa o estado atual das portas no palco.
+            Cada linha mostra o sinal do portal para uma combinação de
+            artefatos. Descubra o padrão e volte às portas!
           </p>
         </div>
       </section>
 
-      <!-- Seleção da Magia -->
       <section class="card" aria-labelledby="magic-title">
         <div class="card-head">
-          <h2 id="magic-title">Qual magia está controlando o portal?</h2>
-          <span class="card-sub" id="unlockedCountInfo">Selecione o feitiço correto</span>
+          <h2 id="magic-title">Qual magia controla o portal?</h2>
+          <span class="card-sub">Escolha uma opção</span>
         </div>
         <div class="magic-list" id="magicGrid"></div>
         <div class="magic-actions">
           <button id="nextRound" class="btn-primary" type="button" disabled>
-            Próxima Rodada ✨
+            Nova rodada
           </button>
         </div>
       </section>
 
-      <!-- Feedback de Resposta -->
       <section class="feedback" id="feedback" aria-live="polite">
         <div class="feedback__inner">
           <span class="feedback__icon" id="feedbackIcon" aria-hidden="true"></span>
