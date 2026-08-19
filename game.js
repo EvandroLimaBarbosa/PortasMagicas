@@ -172,34 +172,45 @@ function guess(opKey) {
   if (game.answered) return;
   game.answered = true;
 
+  const stage = $('.stage');
+  const card = $('.magic-card');
+  card.classList.add('has-result');
+
   document.querySelectorAll('.door').forEach((d) => (d.disabled = true));
   document.querySelectorAll('.magic-option').forEach((b) => (b.disabled = true));
-  $('#nextRound').disabled = false;
+
+  const btn = $(`.magic-option[data-op="${opKey}"]`);
+  const correctBtn = $(`.magic-option[data-op="${game.op}"]`);
+
+  document.querySelectorAll('.magic-option').forEach((o, i) => {
+    if (o !== btn && o !== correctBtn) {
+      o.style.transitionDelay = `${i * 30}ms`;
+      o.classList.add('dimmed');
+    } else {
+      o.style.transitionDelay = '0ms';
+    }
+  });
 
   const fb = $('#feedback');
   const icon = $('#feedbackIcon');
   const text = $('#feedbackText');
-  const opName = OPERATIONS.find((o) => o.key === opKey).pt;
 
   if (opKey === game.op) {
     game.wins++;
     game.streak++;
-
-    document.querySelectorAll('.treasure').forEach((t) => {
-      t.textContent = OPERATIONS.find((o) => o.key === game.op).sym;
-    });
-    document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('open', 'win'));
-    $(`.magic-option[data-op="${opKey}"]`).classList.add('correct');
+    stage.classList.add('stage--win');
+    btn.classList.add('correct');
 
     fb.classList.add('show', 'win');
     icon.textContent = '✨';
-    text.innerHTML = `Parabéns! Você desvendou a magia — o portal é controlado por <strong>${opName}</strong>.`;
+    text.innerHTML = `Acertou! O portal é controlado por <strong>${OPERATIONS.find((o) => o.key === opKey).pt}</strong>.`;
   } else {
     game.losses++;
     game.streak = 0;
+    stage.classList.add('stage--lose');
+    btn.classList.add('wrong');
+    correctBtn.classList.add('reveal');
 
-    $(`.magic-option[data-op="${opKey}"]`).classList.add('wrong');
-    $(`.magic-option[data-op="${game.op}"]`).classList.add('reveal');
     document.querySelectorAll('.door-holder').forEach((h) => h.classList.add('shake'));
     setTimeout(() => {
       document.querySelectorAll('.door-holder').forEach((h) => h.classList.remove('shake'));
@@ -207,8 +218,14 @@ function guess(opKey) {
 
     fb.classList.add('show', 'lose');
     icon.textContent = '🚫';
-    text.innerHTML = `Errou! O selo mágico te repeliu. A magia correta era <strong>${OPERATIONS.find((o) => o.key === game.op).pt}</strong>.`;
+    text.innerHTML = `Errou! A magia correta era <strong>${OPERATIONS.find((o) => o.key === game.op).pt}</strong>.`;
   }
+
+  const nb = $('#nextRound');
+  nb.disabled = false;
+  nb.classList.remove('btn-pop');
+  void nb.offsetWidth;
+  nb.classList.add('btn-pop');
 
   $('#statWins').textContent = game.wins;
   $('#statLosses').textContent = game.losses;
@@ -226,11 +243,18 @@ function newRound() {
   game.B = Math.random() < 0.5 ? 0 : 1;
 
   $('#roundNum').textContent = game.round;
-  $('#nextRound').disabled = true;
+  const nb = $('#nextRound');
+  nb.disabled = true;
+  nb.classList.remove('btn-pop');
+
+  $('.stage').classList.remove('stage--win', 'stage--lose');
+  $('.magic-card').classList.remove('has-result');
 
   $('#feedback').classList.remove('show', 'win', 'lose');
   document.querySelectorAll('.magic-option').forEach((c) => {
-    c.classList.remove('correct', 'wrong', 'reveal');
+    c.classList.remove('correct', 'wrong', 'reveal', 'dimmed', 'rebloom');
+    c.style.animationDelay = '';
+    c.style.transitionDelay = '';
     c.disabled = false;
   });
   document.querySelectorAll('.door-holder').forEach((h) => {
@@ -243,6 +267,30 @@ function newRound() {
   setArtifact('B', game.B);
   updateSignal();
   renderTable();
+
+  const stage = $('.stage');
+  stage.classList.remove('rounding');
+  void stage.offsetWidth;
+  stage.classList.add('rounding');
+  setTimeout(() => stage.classList.remove('rounding'), 700);
+
+  const chip = $('.chip--round');
+  chip.classList.remove('flash');
+  void chip.offsetWidth;
+  chip.classList.add('flash');
+  setTimeout(() => chip.classList.remove('flash'), 650);
+
+  rebloomOptions();
+}
+
+function rebloomOptions() {
+  document.querySelectorAll('.magic-option').forEach((o, i) => {
+    o.style.animationDelay = `${i * 45}ms`;
+    o.classList.add('rebloom');
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.magic-option').forEach((o) => o.classList.remove('rebloom'));
+  }, 600);
 }
 
 function init() {

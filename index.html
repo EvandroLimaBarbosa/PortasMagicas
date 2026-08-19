@@ -22,7 +22,7 @@
           revele a tabela.
         </p>
         <div class="hero-meta">
-          <span class="chip">Rodada <b id="roundNum">1</b></span>
+          <span class="chip chip--round">Rodada <b id="roundNum">1</b></span>
           <span class="chip">Acertos <b id="statWins">0</b></span>
           <span class="chip">Erros <b id="statLosses">0</b></span>
           <span class="chip chip--gold">Sequência <b id="statStreak">0</b></span>
@@ -111,6 +111,13 @@
             artefatos. Descubra o padrão e volte às portas!
           </p>
         </div>
+
+        <section class="feedback" id="feedback" aria-live="polite">
+          <div class="feedback__inner">
+            <span class="feedback__icon" id="feedbackIcon" aria-hidden="true"></span>
+            <p class="feedback__text" id="feedbackText"></p>
+          </div>
+        </section>
       </section>
 
       <section class="card magic-card" aria-labelledby="magic-title">
@@ -123,13 +130,6 @@
           <button id="nextRound" class="btn-primary" type="button" disabled>
             Nova rodada
           </button>
-        </div>
-      </section>
-
-      <section class="feedback" id="feedback" aria-live="polite">
-        <div class="feedback__inner">
-          <span class="feedback__icon" id="feedbackIcon" aria-hidden="true"></span>
-          <p class="feedback__text" id="feedbackText"></p>
         </div>
       </section>
     </main>
