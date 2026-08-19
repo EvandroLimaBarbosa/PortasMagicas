@@ -367,9 +367,7 @@ function timeoutRound() {
   void nb.offsetWidth;
   nb.classList.add('btn-pop');
 
-  $('#statWins').textContent = game.wins;
-  $('#statLosses').textContent = game.losses;
-  $('#statStreak').textContent = game.streak;
+  renderStats();
   saveStats();
 }
 
@@ -447,10 +445,14 @@ function guess(opKey) {
   void nb.offsetWidth;
   nb.classList.add('btn-pop');
 
+  renderStats();
+  saveStats();
+}
+
+function renderStats() {
   $('#statWins').textContent = game.wins;
   $('#statLosses').textContent = game.losses;
   $('#statStreak').textContent = game.streak;
-  saveStats();
 }
 
 function newRound() {
@@ -464,6 +466,7 @@ function newRound() {
   game.A = Math.random() < 0.5 ? 0 : 1;
   game.B = Math.random() < 0.5 ? 0 : 1;
 
+  renderStats();
   $('#roundNum').textContent = game.round;
   $('#timerCount').textContent = effectiveTime(game.round, game.streak);
   const nb = $('#nextRound');
